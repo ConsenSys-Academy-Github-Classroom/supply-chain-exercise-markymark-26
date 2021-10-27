@@ -4,7 +4,7 @@ pragma solidity >=0.5.16 <0.9.0;
 contract SupplyChain {
 
   // <owner>
-  address owner;
+  address public owner;
 
   // <skuCount>
   uint public skuCount;
@@ -30,13 +30,13 @@ contract SupplyChain {
    */
 
   // <LogForSale event: sku arg>
-  event ForSale(uint sku);
+  event LogForSale(uint sku);
   // <LogSold event: sku arg>
-  event Sold(uint sku);
+  event LogSold(uint sku);
   // <LogShipped event: sku arg>
-  event Shipped(uint sku);
+  event LogShipped(uint sku);
   // <LogReceived event: sku arg>
-  event Received(uint sku);
+  event LogReceived(uint sku);
 
   /* 
    * Modifiers
@@ -135,7 +135,7 @@ contract SupplyChain {
       });
 
     skuCount = skuCount + 1;
-    emit ForSale(skuCount);
+    emit LogForSale(skuCount);
     return true;
   }
 
@@ -154,7 +154,7 @@ contract SupplyChain {
     items[sku].seller.transfer(items[sku].price);
     items[sku].buyer = payable(msg.sender);
     items[sku].state = State.Sold;
-    emit Sold(sku);
+    emit LogSold(sku);
   }
 
   // 1. Add modifiers to check:
@@ -163,8 +163,8 @@ contract SupplyChain {
   // 2. Change the state of the item to shipped. 
   // 3. call the event associated with this function!
   function shipItem(uint sku) public sold(sku) verifyCaller(items[sku].seller){
-    items[sku].state = State.Received;
-    emit Received(sku);
+    items[sku].state = State.Shipped;
+    emit LogShipped(sku);
   }
 
   // 1. Add modifiers to check 
@@ -174,7 +174,7 @@ contract SupplyChain {
   // 3. Call the event associated with this function!
   function receiveItem(uint sku) public shipped(sku) verifyCaller(items[sku].buyer) {
     items[sku].state = State.Received;
-    emit Received(sku);
+    emit LogReceived(sku);
   }
 
   // Uncomment the following code block. it is needed to run tests
